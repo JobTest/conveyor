@@ -1,0 +1,90 @@
+apply plugin: "com.bmuschko.tomcat"
+apply plugin: "war"
+
+archivesBaseName = "biser-conveyor-api"
+
+configurations {
+    provided
+}
+
+buildscript {
+    dependencies {
+        classpath "com.bmuschko:gradle-tomcat-plugin:$tomcatPlugin"
+    }
+}
+
+dependencies {
+
+    /* SERVLET DEPENDENCIES */
+    provided "javax.servlet:javax.servlet-api:$servletAPI"
+
+    /* SPRING DEPENDENCIES */
+    compile "org.springframework:spring-web:$spring"
+    compile "org.springframework:spring-aop:$spring"
+    compile "org.springframework:spring-core:$spring"
+    compile "org.springframework:spring-webmvc:$spring"
+    compile "org.springframework:spring-context:$spring"
+    compile "org.springframework.data:spring-data-jdbc-core:$springJDBC"
+
+    /* HIBERNATE DEPENDENCIES */
+    compile "javax.validation:validation-api:$validationAPI"
+    compile "org.hibernate:hibernate-validator:$hibernate"
+    compile "org.hibernate:hibernate-core:$hibernate"
+
+    /* EXT DEPENDENCIES */
+    compile "net.sf.json-lib:json-lib:$jsonlib:jdk15"
+    compile "org.codehaus.jackson:jackson-mapper-asl:$jackson"
+    compile "commons-lang:commons-lang:$commonsLangl"
+    compile "commons-collections:commons-collections:$commonsCollection"
+    compile "ch.qos.logback:logback-classic:$logback"
+    compile "org.unitils:unitils-core:$unitils"
+
+    /* DEBT BRIDGE */
+    compile "biplane-web.cashier.bridge:DebtBridge:$debt"
+
+    /* PG DEPENDENCIES */
+    compile "postgresql:postgresql:$postgresql"
+    testCompile "com.opentable.components:otj-pg-embedded:$otjpgembedded"
+
+    /* TOMCAT DEPENDENCIES */
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:$tomcatServer"
+    tomcat "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatServer"
+    tomcat "org.apache.tomcat.embed:tomcat-embed-jasper:$tomcatServer"
+
+    testCompile "javax.servlet:javax.servlet-api:$servletAPI"
+    testCompile "org.springframework:spring-test:$spring"
+    testCompile "com.jayway.jsonpath:json-path-assert:$jsonPath"
+    testCompile "com.jayway.jsonpath:json-path:$jsonPath"
+    testCompile "org.apache.tomcat:catalina:$catalina"
+    testCompile "org.hamcrest:hamcrest-all:$hamcrest"
+    testCompile "org.mockito:mockito-all:$mockitoAll"
+    testCompile "org.testng:testng:$testng"
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+test {
+    useTestNG() {
+        excludeGroups "integration"
+        excludeGroups "middle"
+    }
+}
+
+task middleTest(type: Test, dependsOn: test) {
+    useTestNG() {
+        includeGroups "middle"
+    }
+}
+
+task integrationTest(type: Test, dependsOn: middleTest) {
+    useTestNG() {
+        includeGroups "integration"
+    }
+}
+
+build {
+    dependsOn middleTest
+}
