@@ -1,0 +1,47 @@
+<configuration debug="true">
+
+    <contextName>Conveyor</contextName>
+
+    <appender name="XML_CONVEYOR_BISER" class="ch.qos.logback.core.FileAppender">
+        <file>${catalina.base}/logs/conveyor_biser.log</file>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression><![CDATA[
+            	    if(mdc == null || mdc.get("interface") == null)
+                         return false;
+                    return "CONV_BISER".equals(mdc.get("interface")) &&
+                    ("T1_INPUT_XML".equals(logger) || "T1_OUTPUT_XML".equals(logger) || "T0_INPUT".equals(logger) || "T0_OUTPUT".equals(logger));
+             ]]> </expression>
+            </evaluator>
+            <onMismatch>DENY</onMismatch>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%msg%n</pattern>
+        </layout>
+    </appender>
+
+    <appender name="TIMING_CONVEYOR_BISER" class="ch.qos.logback.core.FileAppender">
+        <file>${catalina.base}/logs/conveyor_biser.log</file>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression><![CDATA[
+            	    if(mdc == null || mdc.get("interface") == null)
+                         return false;
+                    return "CONV_BISER".equals(mdc.get("interface")) &&
+                    ("T0".equals(logger) || "T1".equals(logger));
+             ]]> </expression>
+            </evaluator>
+            <onMismatch>DENY</onMismatch>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%msg%n</pattern>
+        </layout>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="XML_CONVEYOR_BISER"/>
+        <appender-ref ref="TIMING_CONVEYOR_BISER"/>
+    </root>
+</configuration>

@@ -1,0 +1,45 @@
+apply plugin: "java"
+
+compileJava {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+}
+
+archivesBaseName = "biser-conveyor-cli"
+
+dependencies {
+
+    compile "com.pb.crm:ConveyorApiUtils:$conveyor"
+
+    compile "ch.qos.logback:logback-classic:$logback"
+    compile "net.sf.json-lib:json-lib:$jsonlib:jdk15"
+    compile "org.apache.httpcomponents:httpcore:$httpclient"
+    compile "org.apache.httpcomponents:httpclient:$httpclient"
+
+    testCompile "org.testng:testng:$testng"
+    testCompile "org.mockito:mockito-all:$mockitoAll"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId "biser-conveyor"
+            artifactId "biser-conveyor-cli"
+            version "${version}"
+
+            from components.java
+        }
+    }
+}
+
+test {
+    useTestNG() {
+        excludeGroups "integration", "stress"
+    }
+}
+
+task integrationTest(type: Test, dependsOn: "test") {
+    useTestNG() {
+        includeGroups "integration"
+    }
+}
